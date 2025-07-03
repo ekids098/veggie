@@ -1,0 +1,12 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python: 執行 veggie_w4_schedule.py",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/veggie_w4_schedule.py",
+      "console": "integratedTerminal"
+    }
+  ]
+}

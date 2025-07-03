@@ -1,0 +1,11 @@
+requests
+beautifulsoup4
+pandas
+tabulate
+wcwidth
+selenium
+streamlit
+webdriver-manager
+
+
+
