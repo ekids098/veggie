@@ -32,7 +32,7 @@ def send_email(to_email, subject, body):
 def task():
     try:
         # 載入已儲存的喜愛水果清單。
-        base_dir = os.path.dirname(os.path.abspath(__file__))  # 加入絕對路徑
+        base_dir = os.path.dirname(os.path.abspath(__file__))  # 加入絕對路徑 absolute path。
         fruit_file = Path(base_dir) / "fruit_list.json"
         if not fruit_file.exists():
             print("沒有喜愛水果清單，故無法執行。")
