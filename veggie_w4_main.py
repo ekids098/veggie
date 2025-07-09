@@ -1,7 +1,8 @@
+from typing import Sequence
 import streamlit as st # streamlit 是一個 Python 的開源框架，用來快速建立互動式網頁。
 from veggie_w1 import apply_url_dataframe # 匯入第一週檔案中的 2.應用函式。
 from veggie_w2 import unit_conversion # 匯入第二週檔案中的 1.單位換算函式。
-from veggie_w3 import search # 匯入第三週檔案中的 4.整合查詢函式。
+from veggie_w3 import search, FruitSearchResult # 匯入第三週檔案中的 4.整合查詢函式。
 import json # 用來處理 JSON 格式的資料，例如讀取與寫入設定檔。
 import re # 正規表達式模組，用來進行文字比對與格式驗證。
 from pathlib import Path # 提供物件導向的檔案與路徑處理方式。
@@ -240,6 +241,45 @@ if 'show_fruit_input' not in st.session_state:
 if button_dog:
     st.session_state.show_fruit_input = True
 
+def search_and_render_fruit_price(fruits: Sequence[str]) -> tuple[FruitSearchResult]:
+    """果價搜尋並顯示於頁面，並回傳划算的水果資訊"""
+    search_results = tuple(map(lambda fruit: search(fruit), fruits))
+    
+    # display error message
+    for result in search_results:
+        if result["message"] == "success":
+            continue
+
+        st.error(f"{result["fruit"]} 查詢錯誤：{result["message"]}")
+        if result["errors"]:
+            st.error("詳細資訊:")
+            st.error("\n".join(result["errors"]))
+    
+    # display successful result
+    success_results = tuple(filter(
+        lambda result: result["message"] == "success",
+        search_results,
+    ))
+    for result in success_results:
+        fruit_info = result["data"]
+        st.markdown((
+            f"- **{result["fruit"]}**: "
+            f"週期：{fruit_info.period}，"
+            f"成交價：{fruit_info.average_price} 元，"
+            f"成交價：{fruit_info.average_price} 元，"
+            f"全年度平均成交價：{fruit_info.year_average_price} 元 "
+        ))
+    
+    # display inexpensive price
+    good_price_results = tuple(filter(
+        lambda result: result["data"].lower_than_average,
+        success_results,
+    ))
+    for result in good_price_results:
+        st.success(f"🐶 汪！你喜歡的 {result["fruit"]} 最近便宜了汪，我幫你聞到了汪！")
+
+    return good_price_results
+
 if st.session_state.show_fruit_input:
     # 顯示輸入畫面。
     # 功能說明（置中對齊，字體大小 16px）。
@@ -281,42 +321,34 @@ if st.session_state.show_fruit_input:
     # 按按鈕後執行查詢並寄信通知功能。
     if st.button("查詢並寄信通知", key="btn_notify"):
         st.session_state.search_notify = True
+
     # 查詢。
     if st.session_state.get("search_notify", False):
         st.markdown("🐶 果價搜尋中…")
 
-        notify_list = []
-        data = st.session_state.get("data", None)
-        if not data:
+        if not (data := st.session_state.get("data", None)):
             st.error("🐶 汪！要先儲存喜愛水果清單，才能查詢寄信！")
+
+        elif not (good_results := search_and_render_fruit_price(data.get("fruits", tuple()))):
+            st.info("🐶 沒有水果價格低於平均，暫不寄信汪～")
+
         else:
-            for fruit in data.get('fruits', []):
-                try:
-                    result = search(fruit)
-                    if result.get("是否低於平均價") == "是":
-                        line = (
-                            f"🐶 汪！你喜歡的 {result['水果名稱']} 最近便宜了汪，我幫你聞到了汪！\n"
-                            f"（ 週期：{result['週期']}，成交價：{result['成交價']} 元，全年度平均成交價：{result['全年度平均成交價']} 元 ）"
-                        )
-                        notify_list.append(line)
-                except Exception as e:
-                    st.error(f"{fruit} 查詢錯誤：{e}")
+            try:
+                body = "\n\n".join(map(
+                    lambda result: (
+                        f"🐶 汪！你喜歡的 {result["fruit"]} 最近便宜了汪，我幫你聞到了汪！\n"
+                        f"（ 週期：{result["data"].period}，"
+                        f"成交價：{result["data"].average_price} 元，"
+                        f"全年度平均成交價：{result["data"].year_average_price} 元 ）"
+                    ),
+                    good_results,
+                ))
+                send_email(data['email'], "🐶 果價汪汪", body)
+                st.success(f"🔔 寄信成功！降價資訊已寄給 {data['email']}：")
+            except Exception as e:
+                st.error(f"寄信失敗：{e}")
 
-            # 寄信通知。
-            if notify_list:
-                try:
-                    body = "\n\n".join(notify_list)
-                    # 執行寄信函式。
-                    send_email(data['email'], "🐶 果價汪汪", body)
-                    st.success(f"🔔 寄信成功！以下是降價的水果，已寄給 {data['email']}：")
-                    st.markdown("\n".join(["- " + item.replace("\n", "  \n") for item in notify_list]))
-                except Exception as e:
-                    st.error(f"寄信失敗：{e}")
-            else:
-                st.info("🐶 沒有水果價格低於平均，暫不寄信汪～")
-
-            # 重設狀態，避免下一次重複執行。
-            st.session_state.search_notify = False
+        st.session_state.search_notify = False
 
     # 顯示預覽畫面與功能。
     st.markdown("---")
