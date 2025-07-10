@@ -26,3 +26,13 @@
 
 > [!WARNING]
 > Add this file to your `.gitignore` so you don't commit your secrets!
+
+## veggie_w4_schedule.py
+
+- Avoid override `sys.stdout` / `sys.stderr`, it's a bit dangerous.
+  - stdout / stderr on command line level:
+    ```bash
+    python veggie_w4_schedule.py >schedule.log 2>schedule.error
+    ```
+  - decorator + partial print function
+  - python [logger library](https://docs.python.org/3/library/logging.html)
