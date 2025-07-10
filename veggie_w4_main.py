@@ -1,7 +1,7 @@
 from typing import Sequence
 import streamlit as st # streamlit 是一個 Python 的開源框架，用來快速建立互動式網頁。
 from veggie_w1 import apply_url_dataframe # 匯入第一週檔案中的 2.應用函式。
-from veggie_w2 import unit_conversion # 匯入第二週檔案中的 1.單位換算函式。
+from veggie_w2 import unit_conversion, WeightUnit # 匯入第二週檔案中的 1.單位換算函式。
 from veggie_w3 import search, FruitSearchResult # 匯入第三週檔案中的 4.整合查詢函式。
 import json # 用來處理 JSON 格式的資料，例如讀取與寫入設定檔。
 import re # 正規表達式模組，用來進行文字比對與格式驗證。
@@ -140,7 +140,7 @@ if button_recommend:
             st.markdown(table_fruit, unsafe_allow_html=False)  
 
     except Exception as e:
-        st.error(f"👴 精選蔬果載入失敗")
+        st.error("👴 精選蔬果載入失敗")
         with st.expander("🔧 錯誤詳情（開發者用）"):
             st.exception(e)
 
@@ -185,7 +185,7 @@ def user_input_streamlit():
         try:
             result = unit_conversion(child_count, female_count, male_count, days)
             # 顯示輸出畫面。
-            st.success(f"🥬 蔬菜總共要買 {result['公斤']} 公斤（約 {result['台斤']} 台斤）🥬")
+            st.success(f"🥬 蔬菜總共要買 {result[WeightUnit.KILOGRAM]} 公斤（約 {result[WeightUnit.TAI_JIN]} 台斤）🥬")
         except Exception as e:
             st.error("👵 秤斤秤重載入失敗")
             with st.expander("🔧 錯誤詳情（開發者用）"):
