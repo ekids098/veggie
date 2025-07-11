@@ -1,3 +1,5 @@
+from typing import Callable
+from functools import wraps, partial
 import os
 import sys
 from veggie_w3 import search # 匯入第三週檔案中的 4.整合查詢函式。
@@ -6,6 +8,7 @@ from pathlib import Path # 提供物件導向的檔案與路徑處理方式。
 import smtplib # Python 的內建郵件傳送模組，用來透過 SMTP 協定發送 Email。
 from email.mime.text import MIMEText # 建立純文字格式的 email 內容物件。
 from email.mime.multipart import MIMEMultipart # 建立多格式的 email 內容物件。
+
 
 # 寄信函式。
 def send_email(to_email, subject, body):
@@ -27,27 +30,41 @@ def send_email(to_email, subject, body):
     except Exception as e:
         print(f"寄信失敗：{e}")
         raise e
+    
+
+def inject_logger(file_name: str = "task_log.txt"):
+    def out_wrapper(f):
+        @wraps(f)
+        def wrapper():
+            log_file = Path(__file__).parent.joinpath(file_name)
+            with open(log_file, "a", encoding="utf-8") as file:
+                logger = partial(print, file=file)
+                return f(logger=logger)
+        return wrapper
+    return out_wrapper
+
 
 # 任務函式。
-def task():
+@inject_logger()
+def task(logger: Callable):
     try:
         # 載入已儲存的喜愛水果清單。
         base_dir = os.path.dirname(os.path.abspath(__file__))  # 加入絕對路徑 absolute path。
         fruit_file = Path(base_dir) / "fruit_list.json"
         if not fruit_file.exists():
-            print("沒有喜愛水果清單，故無法執行。")
+            logger("沒有喜愛水果清單，故無法執行。")
             return
         
         with open(fruit_file, "r", encoding="utf-8") as f:
             data = json.load(f)
         
         # 查詢。
-        print(f"👉 準備處理 {data.get('email')}，水果清單：{data.get('fruits')}")
+        logger(f"👉 準備處理 {data.get('email')}，水果清單：{data.get('fruits')}")
         notify_list = []
         for fruit in data.get('fruits', []):
             try:
                 result = search(fruit)
-                print(f"🔍 查詢結果：{result}")  # 每種水果結果。
+                logger(f"🔍 查詢結果：{result}")  # 每種水果結果。
 
                 if result.get("是否低於平均價") == "是":
                     line = (
@@ -56,18 +73,18 @@ def task():
                     )
                     notify_list.append(line)
             except Exception as e:
-                print(f"{fruit} 查詢錯誤：{e}")
+                logger(f"{fruit} 查詢錯誤：{e}")
         
         # 寄信通知。
         if notify_list:
             body = "\n".join(notify_list)
             send_email(data['email'], "🐶 果價汪汪", body)
-            print(f"🔔 每週通知已寄給 {data['email']}！")
+            logger(f"🔔 每週通知已寄給 {data['email']}！")
         else:
-            print("🐶 沒有水果價格低於平均，暫不寄信汪～")
+            logger("🐶 沒有水果價格低於平均，暫不寄信汪～")
 
     except Exception as e:
-        print(f"任務函式錯誤：{e}")
+        logger(f"任務函式錯誤：{e}")
 
 if __name__ == "__main__":
     try:
