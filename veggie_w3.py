@@ -1,7 +1,6 @@
 from typing import TypedDict
 from collections import namedtuple
 import traceback
-
 import requests
 from bs4 import BeautifulSoup
 import json # 用來處理 JSON 格式的資料，例如讀取與寫入設定檔。
@@ -26,7 +25,6 @@ class FruitSearchResult(TypedDict, total=False):
     data: FruitInfo
     errors: list[str] | None
 
-
 class FruitSearchException(Exception):
     def __init__(
             self,
@@ -41,7 +39,7 @@ class FruitSearchException(Exception):
 
 def get_fruit_code(fruit_name):
     """
-    取得水果代碼
+    取得水果代碼。
     """
     url = "https://www.twfood.cc/search"
     params = {"q": fruit_name}
@@ -57,7 +55,6 @@ def get_fruit_code(fruit_name):
 
     try:
         soup = BeautifulSoup(res.text, "html.parser")
-
         # 找出 div.blog-posts 裡第一個 <a> 超連結。
         link = soup.select_one("div.blog-posts a")
     except Exception as e:
@@ -105,22 +102,22 @@ def get_fruit_price(fruit_code):
     
     # 確認 data 是串列且不是空的。
     if not isinstance(data, list) or not data:
-        raise FruitSearchException(message="資料錯誤：回傳非列表或為空")
+        raise FruitSearchException("資料錯誤：回傳非串列或為空")
     
     # 取最後一筆（最新的一週）。
     latest = data[-1]
-    avgPrice = latest.get("avgPrice")
+    avg_price = latest.get("avgPrice")
     period = latest.get("endDay")
 
-    if not avgPrice or not period:
-        raise FruitSearchException(message="Target element not found")
+    if not avg_price or not period:
+        raise FruitSearchException("Target element not found")
 
-    return avgPrice, period
+    return avg_price, period
 
 
 def get_fruit_year_price(href: str) -> float:
     """
-    取得水果「全年度平均成交價」
+    取得水果「全年度平均成交價」。
     """
     base = "https://www.twfood.cc"
     url = base + href
@@ -134,7 +131,6 @@ def get_fruit_year_price(href: str) -> float:
 
     try:
         driver.get(url)
-
         WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.TAG_NAME, "tspan"))
         )
@@ -143,6 +139,7 @@ def get_fruit_year_price(href: str) -> float:
             lambda span: "全年度平均成交價" in span.text,
             driver.find_elements(By.TAG_NAME, "tspan"),
         )
+        
         target_texts = list(map(
             lambda span: span.text,
             target_spans,
@@ -158,25 +155,25 @@ def get_fruit_year_price(href: str) -> float:
         driver.quit()
 
     if not target_texts:
-        raise FruitSearchException("Target span element not found")
+        raise FruitSearchException("Tspan element not found")
 
     if not (match := re.search(r"NT\$ ?([\d.]+)", target_texts[0])):
-        raise FruitSearchException("Span pricing not found.")
+        raise FruitSearchException("Tspan pricing not found")
     
     return float(match.group(1))
 
 
 def search(fruit_name):
-    """整合查詢函式：內含上述三個函式"""
+    """整合查詢函式：內含上述三個函式。"""
     try:
         fruit_code, href = get_fruit_code(fruit_name)
         avg_price, period = get_fruit_price(fruit_code)
         year_price = get_fruit_year_price(href)
 
         return FruitSearchResult(
-            message="success",
-            fruit=fruit_name,
-            data=FruitInfo(
+            fruit = fruit_name,
+            message = "success",
+            data = FruitInfo(
                 period             = period,
                 average_price      = avg_price,
                 year_average_price = year_price,
