@@ -16,7 +16,7 @@
 
 ## 環境需求
 
-- Python 3.8 以上  
+- Python 3.11 以上  
 - 安裝套件（可使用 requirements.txt）：
 
 ```bash
