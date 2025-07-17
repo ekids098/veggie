@@ -1,20 +1,33 @@
+from enum import StrEnum
+
+
+class Category(StrEnum):
+    CHILD = 'child'
+    MALE = 'male'
+    FEMALE = 'female'
+
+
+class WeightUnit(StrEnum):
+    TAI_JIN = '台斤'
+    KILOGRAM = '公斤'
+
 # 1.單位換算函式：計算各類人數的應攝取蔬菜總量（公克），換算成蔬菜的應購買總量（公斤、台斤）。
 # 四個參數：12 歲以下兒童人數 child_count 、12歲以上女性人數 female_count 、12歲以上男性人數 male_count 及單次須購買的蔬菜份量天數 days 。
 def unit_conversion(child_count: int, female_count: int, male_count: int, days: int):
 
     # 設定字典：每人每日應攝取蔬菜量，每份蔬菜 100 克。
     unit_daily_grams = {
-        'child': 3 * 100,   # 300 克
-        'female': 4 * 100,  # 400 克
-        'male': 5 * 100     # 500 克
+        Category.CHILD: 3 * 100,   # 300 克
+        Category.FEMALE: 4 * 100,  # 400 克
+        Category.MALE: 5 * 100     # 500 克
     }
 
     # 使用字典，計算各類人數的應攝取蔬菜總量（公克）。
     # 各類人數的應攝取蔬菜總量 = 各類人數的每日總應攝取蔬菜量 x 單次須購買的蔬菜份量天數。
     total_days_grams = (
-        child_count * unit_daily_grams['child'] +
-        female_count * unit_daily_grams['female'] +
-        male_count * unit_daily_grams['male']
+        child_count * unit_daily_grams[Category.CHILD] +
+        female_count * unit_daily_grams[Category.FEMALE] +
+        male_count * unit_daily_grams[Category.MALE]
     ) * days
 
     # 將公克換算成公斤與台斤，每 600 公克等於 1 台斤。
@@ -26,8 +39,8 @@ def unit_conversion(child_count: int, female_count: int, male_count: int, days: 
     # 回傳換算後的蔬菜應購買總量（公斤、台斤），四捨五入到指定的小數第 2 位。
     # round(number, num)：將數值 number 四捨五入到指定的小數位數 num 。
     return {
-        '公斤': round(kilograms, 2),
-        '台斤': round(Taiwan_catty, 2)
+        WeightUnit.KILOGRAM: round(kilograms, 2),
+        WeightUnit.TAI_JIN: round(Taiwan_catty, 2)
     }
 
 # 🍹主程式🍹。
