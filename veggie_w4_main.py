@@ -10,8 +10,9 @@ import smtplib # Python 的內建郵件傳送模組，用來透過 SMTP 協定�
 from email.mime.text import MIMEText # 建立純文字格式的 email 內容物件。
 from email.mime.multipart import MIMEMultipart # 建立多格式的 email 內容物件。
 
-# 寄信函式。
+
 def send_email(to_email, subject, body):
+    """寄信函式。"""
     from_email = st.secrets["EMAIL_ADDRESS"]
     password = st.secrets["EMAIL_PASSWORD"]
 
@@ -30,7 +31,8 @@ def send_email(to_email, subject, body):
     except Exception as e:
         print(f"寄信失敗：{e}")
         raise e
-    
+
+
 # 設定網頁的基礎架構、主標題、副標題。
 # 分頁顯示文字為「🍹濃縮蔬果汁」，內容整體區塊為置中對齊。
 st.set_page_config(page_title="濃縮蔬果汁", page_icon="🍹", layout="centered")
@@ -61,7 +63,6 @@ st.markdown("---")
 # 3.設定三大角色與功能介紹段落。
 # 3-1.段落標題（置中對齊，<h4>字體大小約 16px）。
 st.markdown("<h4 style='text-align: center;'>二、三大角色與功能介紹</h4>", unsafe_allow_html=True)
-
 # 3-2.段落內文。
 # 按鈕樣式。
 st.markdown("""
@@ -81,6 +82,7 @@ div.stButton > button:hover {
 }
 </style>
 """, unsafe_allow_html=True)
+
 
 # 三大角色欄位橫向排列。
 col1, col2, col3 = st.columns(3)
@@ -145,13 +147,12 @@ if button_recommend:
             st.exception(e)
 
 # 👵客製嬤。
-# 第二週檔案中🍹主程式🍹函式（調整成 streamlit 適用版）。
 def user_input_streamlit():
-
+    """第二週檔案中🍹主程式🍹函式（調整成 streamlit 適用版）。"""
     # 功能說明（置中對齊，字體大小 16px）。
     st.markdown(
         """<h4 style='text-align: center; font-size: 16px;'>
-        功能說明：輸入人數與天數 ➡️ 計算蔬菜應購買總重量（單位：公斤、台斤）。</h4>""",
+        功能說明：輸入人數與天數 ➡️ 換算蔬菜應購買總重量（單位：公斤、台斤）。</h4>""",
         unsafe_allow_html=True
     )
     # 選擇語言。
@@ -233,7 +234,7 @@ with col3:
         with btn3_mid:
             button_dog = st.button("果價汪汪", key="dog")
 
-# 顯示輸入畫面，按按鈕後執行儲存功能、查詢並寄信通知功能、每週ㄧ早上八點自動查詢功能與預覽畫面。
+# 顯示輸入畫面，按按鈕後執行儲存、查詢並寄信通知功能。
 # 使用 session_state 控制是否持續顯示輸入頁面。
 if 'show_fruit_input' not in st.session_state:
     st.session_state.show_fruit_input = False
@@ -242,20 +243,20 @@ if button_dog:
     st.session_state.show_fruit_input = True
 
 def search_and_render_fruit_price(fruits: Sequence[str]) -> tuple[FruitSearchResult]:
-    """果價搜尋並顯示於頁面，並回傳划算的水果資訊"""
+    """顯示果價的查詢結果與便宜通知。"""
     search_results = tuple(map(lambda fruit: search(fruit), fruits))
     
-    # display error message
+    # 查詢成功。
     for result in search_results:
         if result["message"] == "success":
             continue
-
-        st.error(f"{result["fruit"]} 查詢錯誤：{result["message"]}")
+        # 查詢失敗。
+        st.error(f"{result['fruit']} 查詢錯誤：{result['message']}")
         if result["errors"]:
             st.error("詳細資訊:")
             st.error("\n".join(result["errors"]))
     
-    # display successful result
+    # 顯示查詢成功的果價結果。
     success_results = tuple(filter(
         lambda result: result["message"] == "success",
         search_results,
@@ -263,14 +264,13 @@ def search_and_render_fruit_price(fruits: Sequence[str]) -> tuple[FruitSearchRes
     for result in success_results:
         fruit_info = result["data"]
         st.markdown((
-            f"- **{result["fruit"]}**: "
+            f"- **{result['fruit']}**："
             f"週期：{fruit_info.period}，"
-            f"成交價：{fruit_info.average_price} 元，"
             f"成交價：{fruit_info.average_price} 元，"
             f"全年度平均成交價：{fruit_info.year_average_price} 元 "
         ))
     
-    # display inexpensive price
+    # 顯示便宜通知。
     good_price_results = tuple(filter(
         lambda result: result["data"].lower_than_average,
         success_results,
@@ -321,7 +321,6 @@ if st.session_state.show_fruit_input:
     # 按按鈕後執行查詢並寄信通知功能。
     if st.button("查詢並寄信通知", key="btn_notify"):
         st.session_state.search_notify = True
-
     # 查詢。
     if st.session_state.get("search_notify", False):
         st.markdown("🐶 果價搜尋中…")
@@ -343,6 +342,7 @@ if st.session_state.show_fruit_input:
                     ),
                     good_results,
                 ))
+                # 寄信通知。
                 send_email(data['email'], "🐶 果價汪汪", body)
                 st.success(f"🔔 寄信成功！降價資訊已寄給 {data['email']}：")
             except Exception as e:
@@ -368,9 +368,3 @@ if st.session_state.show_fruit_input:
 # 加入水平分隔線，分隔區塊。
 st.markdown("---")
 st.caption("Powered by 推薦公 👴、客製嬤 👵 與果價 🐶 。")
-
-# 開啟網站（在終端機輸入以下兩行）：
-# 安裝所有需要的套件。
-# 1.pip install -r veggie/requirements.txt
-# 執行網站。
-# streamlit run veggie/veggie_w4_main.py
