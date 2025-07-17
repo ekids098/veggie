@@ -2,11 +2,11 @@ import requests
 from bs4 import BeautifulSoup
 import pandas as pd # pandas 的 DataFrame 可以將一筆筆資料以表格形式組織起來，方便以欄與列的結構來操作和分析資料。
 from tabulate import tabulate # tabulate 可以調整原終端機輸出的表格畫面，變得更整齊易讀。
-from wcwidth import wcswidth # wcswidth(text) 會回傳整段文字在終端機中的實際顯示寬度。英文字母、數字：寬度 1，中文：寬度 2。
+from wcwidth import wcswidth # wcswidth（text）會回傳整段文字在終端機中的實際顯示寬度。英文字母、數字：寬度 1，中文：寬度 2。
 
 
 def scrape_tw_food_top5(url) -> list[dict]:
-    """爬蟲函式：從網頁（參數）抓取推薦前五名的品項名稱、批發價、零售價。"""
+    """1.爬蟲函式：從網頁（參數）抓取推薦前五名的品項名稱、批發價、零售價。"""
     # 先設定 User-Agent：隱藏爬蟲目的的假身分，讓網站以為你只是用你的設備（假身分）在上網。
     # 設備：Windows 10 / 64 位元作業系統 / Chrome 瀏覽器 v85。
     try:
@@ -50,8 +50,9 @@ def scrape_tw_food_top5(url) -> list[dict]:
     # 回傳字典串列 list。
     return items_data
 
-# 2.應用函式：將蔬菜與水果分頁丟進爬蟲函式，並建立 DataFrame。
+
 def apply_url_dataframe():
+    """2.應用函式：將蔬菜與水果分頁丟進爬蟲函式，並建立 DataFrame。"""
 
     # 蔬菜前五名分頁網址。
     url_veg = 'https://www.twfood.cc/vege'
@@ -91,6 +92,7 @@ def apply_url_dataframe():
         df.columns = [pad_text(col, 10) for col in df.columns]
 
     return df_veg, df_fruit
+
 
 # 3.輸出：執行應用函式後，設定表格的美化格式並輸出。
 df_veg, df_fruit = apply_url_dataframe()
