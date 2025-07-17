@@ -336,9 +336,9 @@ if st.session_state.show_fruit_input:
                 body = "\n\n".join(map(
                     lambda result: (
                         f"🐶 汪！你喜歡的 {result['fruit']} 最近便宜了汪，我幫你聞到了汪！\n"
-                        f"（ 週期：{result["data"].period}，"
-                        f"成交價：{result["data"].average_price} 元，"
-                        f"全年度平均成交價：{result["data"].year_average_price} 元 ）"
+                        f"（ 週期：{result['data'].period}，"
+                        f"成交價：{result['data'].average_price} 元，"
+                        f"全年度平均成交價：{result['data'].year_average_price} 元 ）"
                     ),
                     good_results,
                 ))
