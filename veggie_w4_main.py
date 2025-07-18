@@ -152,7 +152,7 @@ def user_input_streamlit():
     # 功能說明（置中對齊，字體大小 16px）。
     st.markdown(
         """<h4 style='text-align: center; font-size: 16px;'>
-        功能說明：輸入人數與天數 ➡️ 換算蔬菜應購買總重量（單位：公斤、台斤）。</h4>""",
+        功能說明：輸入人數與天數 ➡️ 計算蔬菜應購買總重量（單位：公斤、台斤）。</h4>""",
         unsafe_allow_html=True
     )
     # 選擇語言。
