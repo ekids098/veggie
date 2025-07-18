@@ -248,23 +248,23 @@ def search_and_render_fruit_price(fruits: Sequence[str]) -> tuple[FruitSearchRes
     
     # 查詢成功。
     for result in search_results:
-        if result["message"] == "success":
+        if result.message == "success":
             continue
         # 查詢失敗。
-        st.error(f"{result['fruit']} 查詢錯誤：{result['message']}")
-        if result["errors"]:
+        st.error(f"{result.fruit} 查詢錯誤：{result.message}")
+        if result.errors:
             st.error("詳細資訊:")
-            st.error("\n".join(result["errors"]))
+            st.error("\n".join(result.errors))
     
     # 顯示查詢成功的果價結果。
     success_results = tuple(filter(
-        lambda result: result["message"] == "success",
+        lambda result: result.message == "success",
         search_results,
     ))
     for result in success_results:
-        fruit_info = result["data"]
+        fruit_info = result.data
         st.markdown((
-            f"- **{result['fruit']}**："
+            f"- **{result.fruit}**："
             f"週期：{fruit_info.period}，"
             f"成交價：{fruit_info.average_price} 元，"
             f"全年度平均成交價：{fruit_info.year_average_price} 元 "
@@ -272,11 +272,11 @@ def search_and_render_fruit_price(fruits: Sequence[str]) -> tuple[FruitSearchRes
     
     # 顯示便宜通知。
     good_price_results = tuple(filter(
-        lambda result: result["data"].lower_than_average,
+        lambda result: result.data and result.data.lower_than_average,
         success_results,
     ))
     for result in good_price_results:
-        st.success(f"🐶 汪！你喜歡的 {result['fruit']} 最近便宜了汪，我幫你聞到了汪！")
+        st.success(f"🐶 汪！你喜歡的 {result.fruit} 最近便宜了汪，我幫你聞到了汪！")
 
     return good_price_results
 
@@ -335,10 +335,10 @@ if st.session_state.show_fruit_input:
             try:
                 body = "\n\n".join(map(
                     lambda result: (
-                        f"🐶 汪！你喜歡的 {result['fruit']} 最近便宜了汪，我幫你聞到了汪！\n"
-                        f"（ 週期：{result['data'].period}，"
-                        f"成交價：{result['data'].average_price} 元，"
-                        f"全年度平均成交價：{result['data'].year_average_price} 元 ）"
+                        f"🐶 汪！你喜歡的 {result.fruit} 最近便宜了汪，我幫你聞到了汪！\n"
+                        f"（ 週期：{result.data.period}，"
+                        f"成交價：{result.data.average_price} 元，"
+                        f"全年度平均成交價：{result.data.year_average_price} 元 ）"
                     ),
                     good_results,
                 ))
