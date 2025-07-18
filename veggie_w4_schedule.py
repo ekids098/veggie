@@ -1,5 +1,3 @@
-from typing import Callable
-from functools import wraps
 import os
 import logging
 import json # 用來處理 JSON 格式的資料，例如讀取與寫入設定檔。
@@ -25,8 +23,8 @@ def init_logger(log_file: str = "task_log.txt"):
 
 # 寄信函式。
 def send_email(to_email, subject, body):
-    from_email = ""                # 改成你的寄件信箱。
-    password = ""                  # 改成你的信箱應用程式密碼。
+    from_email = ""                 # 改成你的寄件信箱。
+    password = ""                   # 改成你的信箱應用程式密碼。
 
     msg = MIMEMultipart()
     msg['From'] = from_email
@@ -67,14 +65,14 @@ def task():
                 result = search(fruit)
                 logging.info(f"🔍 查詢結果：{result}")
 
-                if result.get("是否低於平均價") == "是":
+                if result.data and result.data.lower_than_average:
                     line = (
-                        f"🐶 汪！你喜歡的 {result['水果名稱']} 最近便宜了汪，我幫你聞到了汪！\n"
-                        f"（ 週期：{result['週期']}，成交價：{result['成交價']} 元，全年度平均成交價：{result['全年度平均成交價']} 元 ）"
+                        f"🐶 汪！你喜歡的 {result.fruit} 最近便宜了汪，我幫你聞到了汪！\n"
+                        f"（ 週期：{result.data.period}，成交價：{result.data.average_price} 元，全年度平均成交價：{result.data.year_average_price} 元 ）"
                     )
                     notify_list.append(line)
             except Exception as e:
-                logging.warning(f"{fruit} 查詢錯誤：{e}")
+                logging.warning(f"{fruit} 查詢錯誤：{e}", exc_info=True)
         
         # 寄信通知。
         if notify_list:
