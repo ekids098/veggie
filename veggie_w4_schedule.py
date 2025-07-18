@@ -18,15 +18,15 @@ def init_logger(log_file: str = "task_log.txt"):
         format="%(asctime)s [%(levelname)s] %(message)s",
         handlers=[
             logging.FileHandler(log_path, encoding="utf-8"),
-            logging.StreamHandler()　# 同時輸出到終端機。
+            logging.StreamHandler() # 同時輸出到終端機。
         ]
     )
 
 
 # 寄信函式。
 def send_email(to_email, subject, body):
-    from_email = ""                 # 改成你的寄件信箱。
-    password = ""                   # 改成你的信箱應用程式密碼。
+    from_email = ""                # 改成你的寄件信箱。
+    password = ""                  # 改成你的信箱應用程式密碼。
 
     msg = MIMEMultipart()
     msg['From'] = from_email
