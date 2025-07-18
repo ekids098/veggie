@@ -96,11 +96,3 @@ def user_input():
     input('🍹 按 Enter 一鍵得資🍹')
     result = unit_conversion(child_count, female_count, male_count, days)
     print(f"🍹 蔬菜總共要買 {result['公斤']} 公斤（約 {result['台斤']} 台斤）🍹")
-
-
-
-
-
-
-
-    
