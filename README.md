@@ -64,7 +64,7 @@ pip install -r requirements.txt
    streamlit run veggie_w4_main.py
    ```
 
-3.「自動寄信通知」功能：
+3. 「自動寄信通知」功能：
 - 使用 Windwos 內建工具「 工作排程器 Windows Task Scheduler 」。
 - 定時執行下列指令發送水果價格通知信。
 
