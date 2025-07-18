@@ -44,7 +44,7 @@ pip install -r requirements.txt
 
 ### 備註
 
-- `veggie_w4_main.py` 為 Streamlit 網頁主程式，建議從此檔案啟動網站。
+- `veggie_w4_main.py` 為 Streamlit 網頁主程式，建議從此檔案啟動網頁。
 - 若需「自動寄信通知」功能，請使用外部排程器定時執行 `veggie_w4_schedule.py`。
 - `.streamlit/secrets.toml.tpl` 為寄信設定範本，請複製為 .streamlit/secrets.toml 並填入帳號與應用程式密碼。
 
