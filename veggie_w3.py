@@ -1,5 +1,5 @@
-from typing import TypedDict
-from collections import namedtuple
+from typing import Optional, List
+from dataclasses import dataclass
 import traceback
 import requests
 from bs4 import BeautifulSoup
@@ -12,27 +12,27 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 
 
-FruitInfo = namedtuple('FruitInfo', field_names=(
-    'period',
-    'average_price',
-    'year_average_price',
-    'lower_than_average',
-))
+@dataclass
+class FruitInfo:
+    period: str
+    average_price: float
+    year_average_price: float
+    lower_than_average: bool
 
-class FruitSearchResult(TypedDict, total=False):
+@dataclass
+class FruitSearchResult:
     fruit: str
     message: str
-    data: FruitInfo
-    errors: list[str] | None
+    data: Optional[FruitInfo] = None
+    errors: Optional[list[str]] = None
 
 class FruitSearchException(Exception):
     def __init__(
             self,
             message: str,
-            *args,
-            exc_stack: list[str] | None = None,
+            exc_stack: Optional[List[str]] = None
         ):
-        super().__init__(*args)
+        super().__init__(message)
         self.message = message
         self.exc_stack = exc_stack
 
@@ -163,22 +163,24 @@ def get_fruit_year_price(href: str) -> float:
     return float(match.group(1))
 
 
-def search(fruit_name):
+def search(fruit_name: str) -> FruitSearchResult:
     """整合查詢函式：內含上述三個函式。"""
     try:
         fruit_code, href = get_fruit_code(fruit_name)
         avg_price, period = get_fruit_price(fruit_code)
         year_price = get_fruit_year_price(href)
 
+        fruit_info = FruitInfo(
+            period=period,
+            average_price=avg_price,
+            year_average_price=year_price,
+            lower_than_average=year_price > avg_price
+        )
+
         return FruitSearchResult(
             fruit = fruit_name,
             message = "success",
-            data = FruitInfo(
-                period             = period,
-                average_price      = avg_price,
-                year_average_price = year_price,
-                lower_than_average = year_price > avg_price,
-            )
+            data = fruit_info
         )
     except FruitSearchException as e:
         return FruitSearchResult(
