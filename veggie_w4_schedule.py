@@ -25,8 +25,8 @@ def init_logger(log_file: str = "task_log.txt"):
 
 # 寄信函式。
 def send_email(to_email, subject, body):
-    from_email = "ekids098@gmail.com"        # 改成你的寄件信箱。
-    password = "mkdlbzluhodtvrbh"            # 改成你的信箱應用程式密碼。
+    from_email = ""                 # 改成你的寄件信箱。
+    password = ""                   # 改成你的信箱應用程式密碼。
 
     msg = MIMEMultipart()
     msg['From'] = from_email
