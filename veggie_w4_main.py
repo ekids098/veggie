@@ -137,10 +137,32 @@ if button_recommend:
 
         with tab1:
             st.markdown(table_veg, unsafe_allow_html=False)  
-
+            st.markdown(
+                """
+                <p style="font-size:14px;">
+                    資料來源：
+                    <a href="https://www.twfood.cc/vege" target="_blank" rel="noopener noreferrer">
+                        當季好蔬果-蔬菜
+                    </a>
+                </p>
+                """,
+                unsafe_allow_html=True
+            )
+            
         with tab2:
             st.markdown(table_fruit, unsafe_allow_html=False)  
-
+            st.markdown(
+                """
+                <p style="font-size:14px;">
+                    資料來源：
+                    <a href="https://www.twfood.cc/fruit" target="_blank" rel="noopener noreferrer">
+                        當季好蔬果-水果
+                    </a>
+                </p>
+                """,
+                unsafe_allow_html=True
+            )
+            
     except Exception as e:
         st.error("👴 精選蔬果載入失敗")
         with st.expander("🔧 錯誤詳情（開發者用）"):
@@ -287,8 +309,9 @@ if st.session_state.show_fruit_input:
     "<h4 style='text-align: center; font-size: 16px;'>功能說明：自訂喜愛水果清單 ➡️ 查詢水果成交價格（最近一週）➡️ 低於年度平均即寄信通知。</h4>",
     unsafe_allow_html=True
     )
-    fav_fruits_input = st.text_input("🐶 請輸入水果名稱-品種（用逗號分隔）", "例如：西瓜-大西瓜, 荔枝-糯米")
-    email_input = st.text_input("🐶 請輸入 Email", "")
+    
+    fav_fruits_input = st.text_input(label="🐶 請輸入 [當季好蔬果](https://www.twfood.cc) 中的水果名稱與品種（用逗號分隔）", value="例如：西瓜-大西瓜, 荔枝-糯米")
+    email_input = st.text_input(label="🐶 請輸入 Email", value="")
 
     # 按按鈕後執行儲存功能。
     if st.button("儲存喜愛水果清單", key="save_dog"):
